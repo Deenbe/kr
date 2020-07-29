@@ -18,7 +18,7 @@ clean:
 	rm -rf ./build
 
 test: build
-	CGO_ENABLED=0 AWS_REGION="${AWS_REGION}" go test -timeout 5s -covermode=count -coverpkg="kr" -coverprofile=build/cover.out -tags=integration ./...
+	CGO_ENABLED=0 AWS_REGION="${AWS_REGION}" go test -timeout 5s -covermode=count -coverpkg="kr/lib" -coverprofile=build/cover.out -tags=integration ./...
 
 install: build
 	cp "./build/kr${TARGET}" /usr/local/bin/

@@ -1,5 +1,5 @@
 # kr
-> Kinesis reset (kr) is a utility reset KCL consumer state to a known point in time.
+> Kinesis reset (kr) is a utility reset KCL consumer state to a known point in time
 
 ## Usage
 
