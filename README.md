@@ -18,14 +18,15 @@ By default kr displays the information about the position that stream is going t
 
 ## Examples
 
-Reprocess all records since 1h ago. 
-A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". 
+**Reprocess all records since 1h ago**
 
 ```
 kr --stream-name a --consumer-name a --rewind 1h
 ```
 
-Reprocess all records since a specific date and time
+> A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+
+**Reprocess all records since a specific date and time**
 
 ```
 kr --stream-name a --consumer-name a --since 2020-01-01T01:00:00+10:00
