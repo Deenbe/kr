@@ -3,7 +3,7 @@
 
 ![Build and Release](https://github.com/Deenbe/kr/workflows/Build%20and%20Release/badge.svg)
 
-## Install cpipe
+## Install kr
 
 ```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Deenbe/kr/master/install.sh)"
