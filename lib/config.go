@@ -39,6 +39,9 @@ func (c *Config) CalculatePointInTime(now func() time.Time) (time.Time, error) {
 		return now().Add(time.Duration(-1) * d), nil
 	} else if c.Since != "" {
 		formats := []string{
+			"2006-01-02",
+			"2006-01-02 15:04",
+			"2006-01-02 15:04:05",
 			time.RFC3339,
 			time.RFC1123,
 			time.RFC1123Z,

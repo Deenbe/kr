@@ -20,7 +20,7 @@ By default kr displays the information about the position that stream is going t
 
 **Reprocess all records since 1h ago**
 
-```
+```sh
 kr --stream-name a --consumer-name a --rewind 1h
 ```
 
@@ -28,6 +28,16 @@ kr --stream-name a --consumer-name a --rewind 1h
 
 **Reprocess all records since a specific date and time**
 
-```
-kr --stream-name a --consumer-name a --since 2020-01-01T01:00:00+10:00
+```sh
+# Specific date 
+kr --stream-name a --consumer-name a --since '2020-01-01'
+
+# Specific date and time
+kr --stream-name a --consumer-name a --since '2020-01-01 16:00'
+
+# Specific date and time with seconds
+kr --stream-name a --consumer-name a --since '2020-01-01 16:00:15'
+
+# Specific date and time with tz
+kr --stream-name a --consumer-name a --since '2020-01-01T01:00:00+10:00'
 ```
