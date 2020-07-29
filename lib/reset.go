@@ -2,6 +2,8 @@ package lib
 
 import (
 	"fmt"
+	"os"
+	"text/tabwriter"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -25,15 +27,20 @@ func Reset(t time.Time, config *Config) error {
 		return err
 	}
 
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 5, ' ', 0)
+	defer w.Flush()
 	if len(sn.MatchedShards) > 0 {
-		fmt.Printf("Shards with matching records\n")
+		fmt.Println("Matching Shards")
+		fmt.Println("===============")
+		fmt.Fprintln(w, "SHARD ID\tSEQUENCE NUMBER\t")
 		for sid, r := range sn.MatchedShards {
-			fmt.Printf("%v %v\n", sid, *r.SequenceNumber)
+			fmt.Fprintf(w, "%v\t%v\t\n", sid, *r.SequenceNumber)
 		}
 	}
 
 	if len(sn.UnmatchedShards) > 0 {
-		fmt.Printf("\nShards without matching records\n")
+		fmt.Println("")
+		fmt.Println("Shards without matching records")
 		for _, sid := range sn.UnmatchedShards {
 			fmt.Printf("%v\n", sid)
 		}
