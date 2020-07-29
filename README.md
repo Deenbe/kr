@@ -28,5 +28,5 @@ kr --stream-name a --consumer-name a --rewind 1h
 Reprocess all records since a specific date and time
 
 ```
-kr --stream-name a --consumer-name a --since 20200101T01:00:00+10:00
+kr --stream-name a --consumer-name a --since 2020-01-01T01:00:00+10:00
 ```

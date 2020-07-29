@@ -56,7 +56,7 @@ func init() {
 	rootCmd.Flags().StringVar(&config.StreamName, "stream-name", "", "kinesis stream name")
 	rootCmd.Flags().StringVar(&config.ConsumerName, "consumer-name", "", "kcl consumer name")
 	rootCmd.Flags().StringVar(&config.Rewind, "rewind", "", "time window to rewind the stream")
-	rootCmd.Flags().StringVar(&config.Rewind, "since", "", "date and time to rewind the stream")
+	rootCmd.Flags().StringVar(&config.Since, "since", "", "date and time to rewind the stream")
 	rootCmd.Flags().BoolVar(&config.Update, "update", false, "update sequence number in dynamodb")
 
 	rootCmd.MarkFlagRequired("stream-name")
