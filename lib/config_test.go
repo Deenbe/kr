@@ -35,7 +35,7 @@ func TestParsingSince(t *testing.T) {
 }
 
 func TestParsingInvalidSince(t *testing.T) {
-	c := &Config{Since: "2020-01-02"}
+	c := &Config{Since: "2020-01-02B"}
 	_, err := c.CalculatePointInTime(Now)
 	assert.EqualError(t, err, "unable to recognise the specified time")
 }
