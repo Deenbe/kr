@@ -11,7 +11,7 @@
 
 ## Usage
 
-```sh
+```
 kr [flags]
 
 Flags:
