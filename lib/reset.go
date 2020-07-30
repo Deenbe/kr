@@ -8,12 +8,18 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/kinesis"
 )
 
 type sequenceNumbers struct {
 	MatchedShards   map[string]*kinesis.Record
 	UnmatchedShards []string
+}
+
+type updatedSequenceNumber struct {
+	OldSequenceNumber string
+	NewSequenceNumber string
 }
 
 func Reset(t time.Time, config *Config) error {
@@ -28,14 +34,14 @@ func Reset(t time.Time, config *Config) error {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 5, ' ', 0)
-	defer w.Flush()
 	if len(sn.MatchedShards) > 0 {
 		fmt.Println("Matching Shards")
 		fmt.Println("===============")
-		fmt.Fprintln(w, "SHARD ID\tSEQUENCE NUMBER\t")
+		fmt.Fprintln(w, "SHARD ID\tSEQUENCE NO\t")
 		for sid, r := range sn.MatchedShards {
 			fmt.Fprintf(w, "%v\t%v\t\n", sid, *r.SequenceNumber)
 		}
+		w.Flush()
 	}
 
 	if len(sn.UnmatchedShards) > 0 {
@@ -45,6 +51,23 @@ func Reset(t time.Time, config *Config) error {
 			fmt.Printf("%v\n", sid)
 		}
 	}
+
+	if config.Update {
+		fmt.Println("")
+		fmt.Println("Consumer state")
+		fmt.Println("=======================")
+		u, err := updateConsumerState(sess, config, sn.MatchedShards)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(w, "SHARD ID\tOLD SEQUENCE NO\tNEW SEQUENCE NO\t")
+		for sid, sn := range u {
+			fmt.Fprintf(w, "%v\t%v\t%v\t\n", sid, sn.OldSequenceNumber, sn.NewSequenceNumber)
+		}
+		w.Flush()
+	}
+
 	return nil
 }
 
@@ -98,4 +121,36 @@ func findSequenceNumbers(t time.Time, config *Config, sess *session.Session) (*s
 	}
 
 	return &sequenceNumbers{MatchedShards: matched, UnmatchedShards: unmatched}, nil
+}
+
+func updateConsumerState(sess *session.Session, config *Config, newState map[string]*kinesis.Record) (map[string]*updatedSequenceNumber, error) {
+	d := dynamodb.New(sess)
+	m := make(map[string]*updatedSequenceNumber)
+
+	for sid, r := range newState {
+		i, err := d.GetItem(&dynamodb.GetItemInput{
+			TableName: &config.ConsumerName,
+			Key: map[string]*dynamodb.AttributeValue{
+				"leaseKey": {S: &sid},
+			},
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		m[sid] = &updatedSequenceNumber{OldSequenceNumber: *r.SequenceNumber, NewSequenceNumber: *r.SequenceNumber}
+		i.Item["checkpoint"].S = r.SequenceNumber
+
+		_, err = d.PutItem(&dynamodb.PutItemInput{
+			TableName: &config.ConsumerName,
+			Item:      i.Item,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return m, nil
 }
