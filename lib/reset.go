@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/kinesis"
+	"github.com/pkg/errors"
 )
 
 type sequenceNumbers struct {
@@ -30,7 +31,7 @@ func Reset(t time.Time, config *Config) error {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{}))
 	sn, err := findSequenceNumbers(t, config, sess)
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 5, ' ', 0)
@@ -58,7 +59,7 @@ func Reset(t time.Time, config *Config) error {
 		fmt.Println("=======================")
 		u, err := updateConsumerState(sess, config, sn.MatchedShards)
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 
 		fmt.Fprintln(w, "SHARD ID\tOLD SEQUENCE NO\tNEW SEQUENCE NO\t")
@@ -78,7 +79,7 @@ func findSequenceNumbers(t time.Time, config *Config, sess *session.Session) (*s
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	matched := make(map[string]*kinesis.Record)
@@ -92,7 +93,7 @@ func findSequenceNumbers(t time.Time, config *Config, sess *session.Session) (*s
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
 
 		iter := i.ShardIterator
@@ -103,7 +104,7 @@ func findSequenceNumbers(t time.Time, config *Config, sess *session.Session) (*s
 			})
 
 			if err != nil {
-				return nil, err
+				return nil, errors.WithStack(err)
 			}
 
 			if len(r.Records) == 1 {
@@ -111,7 +112,7 @@ func findSequenceNumbers(t time.Time, config *Config, sess *session.Session) (*s
 				break
 			}
 
-			if *r.MillisBehindLatest == 0 {
+			if *r.MillisBehindLatest == 0 || r.NextShardIterator == nil {
 				unmatched = append(unmatched, *s.ShardId)
 				break
 			}
@@ -136,7 +137,7 @@ func updateConsumerState(sess *session.Session, config *Config, newState map[str
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
 
 		m[sid] = &updatedSequenceNumber{OldSequenceNumber: *r.SequenceNumber, NewSequenceNumber: *r.SequenceNumber}
@@ -148,7 +149,7 @@ func updateConsumerState(sess *session.Session, config *Config, newState map[str
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
 	}
 
