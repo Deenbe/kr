@@ -31,6 +31,14 @@ type Config struct {
 }
 
 func (c *Config) CalculatePointInTime(now func() time.Time) (time.Time, error) {
+	t, err := c.parseTime(now)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return t.In(time.UTC), nil
+}
+
+func (c *Config) parseTime(now func() time.Time) (time.Time, error) {
 	if c.Rewind != "" {
 		d, err := time.ParseDuration(c.Rewind)
 		if err != nil {
@@ -51,6 +59,11 @@ func (c *Config) CalculatePointInTime(now func() time.Time) (time.Time, error) {
 			var t time.Time
 			t, err := time.Parse(f, c.Since)
 			if err == nil {
+				// If tz is not specified in the input assume the user is referring to local time
+				_, o := t.Zone()
+				if o == 0 {
+					t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.Local)
+				}
 				return t, nil
 			}
 		}

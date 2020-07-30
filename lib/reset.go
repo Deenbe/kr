@@ -24,10 +24,6 @@ type updatedSequenceNumber struct {
 }
 
 func Reset(t time.Time, config *Config) error {
-	_, o := t.Zone()
-	if o != 0 {
-		t = t.UTC()
-	}
 	sess := session.Must(session.NewSessionWithOptions(session.Options{}))
 	sn, err := findSequenceNumbers(t, config, sess)
 	if err != nil {

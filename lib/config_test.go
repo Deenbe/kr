@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var TZ *time.Location = time.FixedZone("", 60*60*10)
+var TZ *time.Location = time.FixedZone("", 60*60*1)
 
 func Now() time.Time {
 	return time.Date(2020, 1, 2, 8, 0, 0, 0, TZ)
@@ -15,10 +15,9 @@ func Now() time.Time {
 
 func TestParsingDuration(t *testing.T) {
 	c := &Config{Rewind: "1m"}
-
 	r, err := c.CalculatePointInTime(Now)
 	assert.NoError(t, err)
-	assert.Equal(t, r, time.Date(2020, 1, 2, 7, 59, 0, 0, TZ))
+	assert.Equal(t, time.Date(2020, 1, 2, 6, 59, 0, 0, time.UTC), r)
 }
 
 func TestParsingInvalidDuration(t *testing.T) {
@@ -28,10 +27,10 @@ func TestParsingInvalidDuration(t *testing.T) {
 }
 
 func TestParsingSince(t *testing.T) {
-	c := &Config{Since: "2020-01-02T07:00:00+10:00"}
+	c := &Config{Since: "2020-01-02T07:00:00+01:00"}
 	r, err := c.CalculatePointInTime(Now)
 	assert.NoError(t, err)
-	assert.Equal(t, r, time.Date(2020, 1, 2, 7, 0, 0, 0, TZ))
+	assert.Equal(t, time.Date(2020, 1, 2, 6, 0, 0, 0, time.UTC), r)
 }
 
 func TestParsingInvalidSince(t *testing.T) {
