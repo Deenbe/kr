@@ -23,7 +23,7 @@ Flags:
       --update                 update consumer state in dynamodb
 ```
 
-## What happens behind the scenes?
+## Under the hood
 kr reads the target stream to find a record created at the specified time. If a record is not created at that point it discovers the first one created after that point. Once the record is discovered, it updates the KCL state table in DynamoDB to the sequence number of that record.
 
 By default kr displays the information about the position that stream is going to be set to. To update KCL state table, you should specify `--update` argument.
