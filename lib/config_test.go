@@ -38,3 +38,10 @@ func TestParsingInvalidSince(t *testing.T) {
 	_, err := c.CalculatePointInTime(Now)
 	assert.EqualError(t, err, "unable to recognise the specified time")
 }
+
+func TestParsingUTCTime(t *testing.T) {
+	c := &Config{Rewind: "1m"}
+	r, err := c.CalculatePointInTime(func() time.Time { return time.Date(2020, 1, 2, 8, 0, 0, 0, time.UTC) })
+	assert.NoError(t, err)
+	assert.Equal(t, time.Date(2020, 1, 2, 7, 59, 0, 0, time.UTC), r)
+}
